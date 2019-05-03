@@ -6,7 +6,7 @@ CREATE DATABASE tutorial;
 DROP SCHEMA IF EXISTS bookings CASCADE;
 
 CREATE USER dmitriy WITH ENCRYPTED PASSWORD '*********';
-GRANT ALL PRIVILEGIES ON DATABASE tutorial TO dima;
+GRANT ALL PRIVILEGES ON DATABASE tutorial TO dmitriy;
 
 --> psql -d tutorial -U dima
 CREATE SCHEMA bookings AUTHORIZATION dima;
@@ -27,6 +27,8 @@ CREATE TABLE aircrafts (
 COMMENT ON TABLE aircrafts IS 'Aircrafts data';
 
 --> \d+
+--> \df
+--> \du
 
 INSERT INTO aircrafts (aircraft_code, model, range)
 VALUES ('SU9', '{"en":"Sukhoi SuperJet-100", "ru":"Сухой СуперДжет-100"}', 3000),

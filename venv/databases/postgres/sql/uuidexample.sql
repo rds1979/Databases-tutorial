@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+ALTER EXTENSION "uuid-ossp" SET SCHEMA pg_catalog;
 
 SELECT uuid_generate_v4()
 

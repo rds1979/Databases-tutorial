@@ -1,3 +1,4 @@
+import dns
 import time
 import json
 import pymongo
@@ -9,8 +10,9 @@ start = time.time()
 def mongo_insert(file):
     conn = None
     try:
-        conn = pymongo.MongoClient('localhost', 27017)
-        base = conn.tutorial
+        #conn = pymongo.MongoClient('localhost', 27017)
+        conn = pymongo.MongoClient("mongodb+srv://m001-student:m001-mongodb-basics@sandbox-ip14p.mongodb.net/university?retryWrites=true")
+        base = conn.university
         coll = base.students
         data = read_json(file)
         coll.insert_many(data, ordered=False)

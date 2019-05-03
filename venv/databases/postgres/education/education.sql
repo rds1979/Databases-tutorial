@@ -140,7 +140,7 @@ CREATE TABLE subjects (
 COMMENT ON TABLE subjects IS 'Subjects data';
 COMMENT ON COLUMN subjects.subject IS 'Subject name';
 
-INSERT INTO subjects VALUES (1, 'Math'), (2, Biology), (3, Chemistry), (4, Sports);
+INSERT INTO subjects VALUES (1, 'Math'), (2, 'Biology'), (3, 'Chemistry'), (4, 'Sports');
 
 ALTER TABLE progress
     ALTER COLUMN subject DROP NOT NULL,
@@ -162,6 +162,18 @@ ALTER TABLE students
 ALTER TABLE progress
     ALTER COLUMN mark SET DEFAULT 5;
 
+ALTER TABLE progress
+    DROP CONSTRAINT progress_odc_serial_fkey,
+    ALTER COLUMN doc_serial SET DATA TYPE TEXT,
+    ALTER COLUMN doc_number SET DATA TYPE TEXT;
+
 ALTER TABLE students
     ALTER COLUMN doc_serial SET DATA TYPE TEXT,
     ALTER COLUMN doc_number SET DATA TYPE TEXT;
+
+ALTER TABLE progress
+    ADD FOREIGN KEY (doc_serial, doc_number)
+        REFERENCES students(doc_serial, doc_number)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE;
+

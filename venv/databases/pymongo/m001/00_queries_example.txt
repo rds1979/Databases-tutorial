@@ -1,0 +1,52 @@
+# mongo --nodb
+
+# mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,
+#                  cluster0-shard-00-00-jxeqq.mongodb.net:27017,
+#                  cluster0-shard-00-00-jxeqq.mongodb.net:27017/100YWeatherSmall?replicaSet=Cluster0-shard-0"
+#                --authenticationDatabase admin --ssl --username m001-student --password m001-mongodb-basics
+
+# mongo "mongodb+srv://sandbox-ip14p.mongodb.net/university" --username m001-student --password m001-mongodb-basics
+--> psql cluster0-shard-00-00-jxeqq.mongodb.net:5432 -h -d 100YWeatherSmall -U m001-student
+
+# show dbs
+--> \l
+
+# show collections
+--> \d
+
+# load("loadMovieDetailsDataset.js")
+--> \i '/home/dmitriy/postger_load/demo-big-20170815.sql'
+
+# use movies
+# show collections
+--> \c movies
+--> \d
+
+# db.movies.find().pretty()
+--> SELECT * FROM movies;
+
+# db.movieDetails.count({"genres" : "Comedy"})
+--> SELECT COUNT (*) FROM movie_details WHERE genres = 'Comedy'
+# db.movieDetails.find({"genres" : "Comedy"}).pretty().limit(10)
+--> SELECT * FROM movie_details WHERE genres = 'Comedy' LIMIT 10
+
+# db.createCollection("moviesTest")
+--> CREATE TABLE movie_test ();
+
+--> CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+--> \dx uuid-ossp
+--> ALTER EXTENSION "uuid-ossp" SET SCHEMA pg_catalog;
+--> \dn
+--> CREATE SCHEMA video AUTHORIZATION dmitriy;
+--> SET SEARCH_PATH TO video;
+--> \d+
+--> CREATE TABLE movies_scratch (
+        movie_uuid UUID NOT NULL DEFAULT uuid_generate_v4(),
+        title TEXT NOT NULL,
+        year INT,
+        imdb CHAR(9),
+        PRIMARY KEY(movie_uuid));
+--> INSERT INTO movies_scratch (title, year, imdb) VALUES ('Rocky', '1976', 'tt0075148');
+
+# quit()
+--> \q
