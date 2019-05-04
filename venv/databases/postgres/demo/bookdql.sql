@@ -33,3 +33,24 @@ SELECT * FROM aircrafts ORDER BY range DESC;
 SELECT DISTINCT timezone FROM airports ORDER BY 1;
 
 SELECT airport_name, city, coordinates[0]"longtitude" FROM airports ORDER BY longtitude DESC LIMIT 3 OFFSET 3;
+
+SELECT model, range"kilometers", round(range/1.609, 2)"miles",
+CASE
+    WHEN range < 2000 THEN 'Ближнемагистральный'
+    WHEN range < 5000 THEN 'Среднемагистральный'
+    ELSE 'Дальнемагистральный' END"type"
+FROM aircrafts ORDER BY range DESC;
+
+SELECT
+    a.aircraft_code"code", a.model,
+    s.seat_no"seat", s.fare_conditions"fare"
+FROM seats s JOIN aircrafts a
+ON s.aircraft_code = a.aircraft_code
+WHERE a.model ~ '^Сессна' ORDER BY s.seat_no;
+
+SELECT
+    a.aircraft_code AS code, a.model,
+    s.seat_no AS seat, s.fare_conditions AS fcond
+FROM seats AS s, aircrafts AS a
+WHERE s.aircraft_code = a.aircraft_code
+AND a.model LIKE 'Сессна%' ORDER BY s.seat_no;

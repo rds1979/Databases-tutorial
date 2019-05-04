@@ -6,7 +6,7 @@
 #                --authenticationDatabase admin --ssl --username m001-student --password m001-mongodb-basics
 
 # mongo "mongodb+srv://sandbox-ip14p.mongodb.net/university" --username m001-student --password m001-mongodb-basics
---> psql cluster0-shard-00-00-jxeqq.mongodb.net:5432 -h -d 100YWeatherSmall -U m001-student
+--> psql cluster0-shard-00-00-jxeqq.mongodb.net:5432 -d 100YWeatherSmall -U m001-student
 
 # show dbs
 --> \l
@@ -33,6 +33,8 @@
 # db.createCollection("moviesTest")
 --> CREATE TABLE movie_test ();
 
+# db.movies.insert({"title" : "Rocky", "year" : NumberInt(1976), "imdb" : "tt0075148"})
+
 --> CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 --> \dx uuid-ossp
 --> ALTER EXTENSION "uuid-ossp" SET SCHEMA pg_catalog;
@@ -46,7 +48,46 @@
         year INT,
         imdb CHAR(9),
         PRIMARY KEY(movie_uuid));
---> INSERT INTO movies_scratch (title, year, imdb) VALUES ('Rocky', '1976', 'tt0075148');
+--> INSERT INTO movies_scratch (title, year, imdb) VALUES ('Rocky', 1976, 'tt0075148');
+
+# db.movies.insert({"title" : "Creed", "year" : NumberInt(2015), "imdb" : "tt3076658"})
+# db.moviesScratch.insertOne({"title" : "Star Trek II: The Wrath of Khan", "year" : 1982, "imdb" : "tt0084726"})
+
+# db.moviesScratch.insertMany([], {"ordered" : false})
+
+# db.movieDetails.find({"rated": "PG-13", "year" : 2009}).pretty()
+--> SELECT * FROM movie_details WHERE rated::TEXT ~~ 'PG-13' AND year::INT = 2009
+
+# db.movieDetails.count({"awards.wins" : 2 , "awards.nominations" : 2})
+--> SELECT COUNT(*) FROM movie_details WHERE awards_wins = 2 OR awards_nominations = 2;
+# db.movieDetails.count({"rated": "PG", "awards.nominations" : 10})
+
+# db.movieDetails.find({"actors.2" : "Kevin Chevalia"}).pretty()
+# db.movieDetails.find({"actors": {$all : ['Ed Bernard', 'Kevin Chevalia']}}).pretty()
+# db.movieDetails.find({"writers": {$all : ['Ethan Coen', 'Joel Coen']}}).count()
+# db.movieDetails.find({"writers": ['Ethan Coen', 'Joel Coen']}).count()
+# db.movieDetails.find({"genres": {$all : ['Family']}}).count()
+# db.movieDetails.find({"genres.2" : "Western"}).pretty()
+
+# db.movieDetails.find({"genres.2" : "Western"}, {"title" : 1})
+--> SELECT title FROM movie_details WHERE genres[1]::TEXT = 'Western';
+
+# db.movieDetails.updateOne({"title" : "The Martian"}, {$set : {"imdb.rating" : 9.5}})
+--> UPDATE movie_details SET imdb_rating = 9.5 WHERE title = 'The Martian';
+# db.movieDetails.updateOne({"title" : "The Martian"}, {$set : {"awards" : {"wins" : 8, "nomination" : 14, "text" : "tro-lo-lo"}}})
+# db.movieDetails.updateMany({{"rated": null, "posted" : null}}, {$set : {"rated" : ""}})
+
+
+# let filter = {title: "House, M.D., Season Four: New Beginnings"}
+# let doc = db.movies.findOne(filter);
+# doc.poster
+# doc.poster = "https://www.imdb.com/title/tt1329164/mediaviewer/rm2619416576";
+# doc.genres;
+# doc.genres.push("TV Series");
+
+# db.movieDetails.deleteOne({_id : ObjectId("5ccb5ab2499613aba8c492c4")})
+# db.movieDetails.deleteMany({"reviewer_id": "246566786"})
+--> DELETE FROM movie_details WHERE id = '5ccb5ab2499613aba8c492c4'
 
 # quit()
 --> \q
