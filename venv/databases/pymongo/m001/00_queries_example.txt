@@ -70,7 +70,7 @@
 # db.movieDetails.find({"genres.2" : "Western"}).pretty()
 
 # db.movieDetails.find({"genres.2" : "Western"}, {"title" : 1})
---> SELECT title FROM movie_details WHERE genres[1]::TEXT = 'Western';
+--> *******
 
 # db.movieDetails.updateOne({"title" : "The Martian"}, {$set : {"imdb.rating" : 9.5}})
 --> UPDATE movie_details SET imdb_rating = 9.5 WHERE title = 'The Martian';
@@ -88,6 +88,51 @@
 # db.movieDetails.deleteOne({_id : ObjectId("5ccb5ab2499613aba8c492c4")})
 # db.movieDetails.deleteMany({"reviewer_id": "246566786"})
 --> DELETE FROM movie_details WHERE id = '5ccb5ab2499613aba8c492c4'
+
+# db.movieDetails.find({"runtime" : {$gt : 90}}, {_id : 0, "tilte" : 1, "runtime" : 1})
+--> SELECT title, runtime FROM movie_details WHERE runtime > 90;
+# db.movieDetails.find({"runtime" : {$gt : 90, $lt : 120}}, {_id : 0, "tilte" : 1, "runtime" : 1})
+--> SELECT title, runtime FROM movie_details WHERE runtime > 90 AND runtime < 120;
+
+# db.movieDetails.find({"runtime" : {$gte : 90, $lte : 120}}, {_id : 0, "title" : 1, "runtime" : 1)
+--> SELECT title, runtime FROM movie_details WHERE runtime >= 90 AND  <= 120;
+--> SELECT title, runtime FROM movie_details WHERE runtime BETWEEN 90 AND 120;
+
+# db.movieDetails.find({"runtime" : {$gte : 180}, "tomato.meter" : {$gte : 95}}, {_id : 0, "title" : 1, "runtime" : 1})
+--> ******
+
+# db.movieDetails.find({"rated" : {$ne : "UNRATED"}}, {_id : 0, "title" : 1, "runtime" : 1})
+--> SELECT title, runtime, rated WHERE rated <> "UNRATED";
+
+# db.movieDetails.find({"rated" : {$in : ["G", "PG"]}}, {_id : 0, "title" : 1, "rated" : 1})
+--> SELECT title, runtime, rated FROM movie_details WHERE rated IN ("G", "PG");
+--> *******
+
+# db.movieDetails({"writers" : {$in : ["Joel Coen", "Ethan Coen"]}}),count()
+--> *******
+
+# db.movie.find({"mpaaRating" : {$exists : true}})
+
+# db.movie.find({"viewerRating" : {$type : "int"}}).pretty()
+
+# db.data.find({"atmosphericPressureChange" : {$exists : false}}).count()
+
+# db.movieDetails.find({$or : [{"tomato.meter" : {$gt : 95}},
+                               {"metacritic" : {$gt : 88}}]},
+                       {_id : 0, "title" : 1, "tomato.meter" : 1, "metacritic" : 1})
+--> SELECT title, tomato_meters, metacritic FROM movie_details WHERE tomato_meters > 95 OR metacritic > 88;
+
+# db.movieDetails.find({$and : [{"tomato.meter" : {$gt : 95}},
+                                {"metacritic" : {$gt : 88}}]},
+                       {_id : 0, "title" : 1, "tomato.meter" : 1, "metacritic" : 1})
+--> SELECT title, tomato_meters, metacriric WHERE tomato_meter > 95 AND metacritic > 88;
+
+# db,movieDetails.find({$and : [{"metacritic" : {$ne : null}},
+                                {"metacritic" : {$exists : true}}]},
+                       {_id : 0, "title" : 1, "tomato.meter" : 1, "metacritic" : 1})
+
+# db.shipwrecks.find({$or : [{"watlev" : {$eq : "always dry"}}, {"depth" : 0}]}).count()
+--> SELECT COUNT(*) FROM shipwrecks WHERE watlev::TEXT ~~ 'always dry' OR depth = 0;
 
 # quit()
 --> \q
