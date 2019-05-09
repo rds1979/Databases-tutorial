@@ -127,12 +127,31 @@
                        {_id : 0, "title" : 1, "tomato.meter" : 1, "metacritic" : 1})
 --> SELECT title, tomato_meters, metacriric WHERE tomato_meter > 95 AND metacritic > 88;
 
-# db,movieDetails.find({$and : [{"metacritic" : {$ne : null}},
+# db.movieDetails.find({$and : [{"metacritic" : {$ne : null}},
                                 {"metacritic" : {$exists : true}}]},
                        {_id : 0, "title" : 1, "tomato.meter" : 1, "metacritic" : 1})
 
 # db.shipwrecks.find({$or : [{"watlev" : {$eq : "always dry"}}, {"depth" : 0}]}).count()
 --> SELECT COUNT(*) FROM shipwrecks WHERE watlev::TEXT ~~ 'always dry' OR depth = 0;
+
+# db.movieDetails.find({"genres" : {$all : ["Comedy", "Crime", "Drama"]}}, {_id : 0, "title" : 1, "genres" : 1})
+--> SELECT title, genres FROM movie_details WHERE genres IN ("Comedy", "Crime", "Drama");
+# db.data.find({"sections" : {$all : ["AG1", "MD1", "OA1"]}})
+--> SELECT * FROM data WHERE sections IN ("AG1", "MD1", "OA1");
+--> *****
+
+# db.movieDetails.find({"countries" : {$size : 1}}, {_id : 0, "title" : 1, "countries" : 1})
+
+# martian = db.movieDetails.findOne({"title" : "The Martian"})
+# delete martian.id
+# martian.tomato
+# db.moviesDetail.insertOne(martian)
+--> *******
+
+# db.movieDetails.find({"awards.text" : {$regex : /^Wom/*/}},{_id : 0, "title" : 1, "awards.text" : 1}).pretty()
+--> SELECT title, awards_text FROM movie_details WHERE awards_text ~ '^Won.*';
+
+# db.scories.find({results : {$elemMatch: {$gte : 70, $lt : 80}}})
 
 # quit()
 --> \q
