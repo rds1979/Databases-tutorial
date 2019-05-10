@@ -1,0 +1,76 @@
+--> SELECT spcname FROM pg_tablespace;
+
+--> \db
+
+pg_global - табличное пространтво хранит объекты системного каталога, общие для всего кластера
+pg_default - табличное пространство, хранящее объекты, создаваемые в базе данных
+
+$PGDATA/global # месторасположение табличного пространства pg_global
+$PGDATA/base   # месторасположение табличного пространства pg_default
+$PGDATA/tblsps # каталог хранения ссылок на реальные каталоги создаваемых табличных пространств
+
+$ mkdir /data/exttbspaces/corporate
+$ chmod 700 /data/exttbspaces/corporate
+$ chown postgres.postgres /data/exttbspaces/corporate
+
+--> SELECT nspname FROM pg_namespace;
+--> SELECT spcname FROM pg_tablespace;
+--> \db+
+
+--> CREATE TABLESPACE corporate LOCATION '/data/exttbspaces/corporate';
+--> CREATE DATABASE newtest TABLESPACE my_tutorial;
+--> CREATE TABLE t(s TEXT);
+--> INSERT INTO t SELECT g.id::TEXT FROM generate_series(1, 1000000) g(id);
+--> CREATE INDEX ON t(s);
+--> VACUUM;
+--> SELECT pg_relation_filepath('t');
+--> \c tutorial
+--> \dt education.*
+--> SELECT pg_relation_filepath('education.students');
+
+# *_fsm -- free space map (карта табличного пространства)
+# *_vm -- vision map (карта видимости)
+
+--> ALTER TABLE t SET TABLESPACE pg_default;
+
+--> SELECT pg_size_pretty(pg_database_size('corporate'));
+--> SELECT pg_size_pretty(pg_total_relation_size('t'));
+--> SELECT pg_size_pretty(pg_indexes_size('t'));
+--> SELECT pg_size_pretty(pg_tablespace_size('corporate'));
+
+--> \c postgres
+--> DROP DATABASE newtest;
+--> DROP TABLESPACE my_tutorial;
+
+############################################################################################################
+
+--> CREATE DATABASE newtest;
+
+--> \c newtest
+--> CREATE TABLESPACE ts LOCATION '/data/exttbspaces/corporate';
+--> \db+
+--> CREATE TABLE t (s TEXT) TABLESPACE ts;
+--> SELECT pg_relation_filepath('t');
+--> INSERT INTO t SELECT g.id::TEXT FROM generate_series(1,5000000) g(id);
+--> CREATE INDEX ON t(s);
+--> VACUUM(t);
+
+--> SELECT pg_size_pretty(pg_tablespace_size('pg_default')); -- 2791MB
+--> SELECT pg_size_pretty(pg_tablespace_size('ts')); -- 173MB
+--> SELECT pg_size_pretty(pg_database_size('newtest')); -- 288MB
+--> SELECT pg_size_pretty(pg_total_relation_size('t')); -- 280MB
+--> SELECT pg_size_pretty(pg_relation_size('t')); -- 173MB
+--> SELECT pg_size_pretty(pg_indexes_size('t')); -- 107MB
+
+--> ALTER TABLE t SET TABLESPACE pg_default;
+
+--> SELECT pg_relation_filepath('t');
+
+--> SELECT pg_size_pretty(pg_tablespace_size('pg_default')); -- 2964MB
+--> SELECT pg_size_pretty(pg_tablespace_size('ts')); -- 4096Bt
+--> SELECT pg_size_pretty(pg_database_size('newtest')); -- 288MB
+--> SELECT pg_size_pretty(pg_total_relation_size('t')); -- 280MB
+--> SELECT pg_size_pretty(pg_relation_size('t')); -- 173MB
+--> SELECT pg_size_pretty(pg_indexes_size('t')); -- 107MB
+
+--> DROP TABLESPACE ts;

@@ -1,0 +1,2 @@
+\set edu 'SET SEARCH_PATH TO education';
+\set stud 'SELECT * FROM students';

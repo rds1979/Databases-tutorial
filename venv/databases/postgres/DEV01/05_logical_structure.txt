@@ -1,0 +1,85 @@
+public -- по умолчанию в этой схеме создаются все объекты
+pg_catalog -- системный каталог PostgreSQL
+information_shema -- представление системного каталога
+pg_temp -- схема для временных таблиц
+
+--> DROP SCHEMA public;
+--> SELECT datname FROM pg_database;
+--> \l
+--> \set ECHO_HIDDEN on|off|noexec
+
+--> CREATE DATABASE test;
+--> \c test
+
+--> SELECT nspname FROM pg_namespace;
+--> \dn
+
+--> SELECT current_schemas(true);
+--> SELECT current_schema;
+--> SHOW SEARCH_PATH;
+
+--> CREATE TABLE t (i INT);
+
+--> \d+
+--> \dt+
+
+--> SELECT relname, relnamespace FROM pg_class WHERE relnamespace = 'public'::regnamespace;
+
+--> ALTER TABLE t SET SCHEMA special;
+
+--> \dt public.*
+--> SET SEARCH_PATH public, special;
+
+# Можно прописать SEARCH_PATH в конфигурационном файле кроме тог, конфигурационные параметры можно задавать для отдельных баз:
+
+--> ALTER DATABASE test SET SEARCH_PATH = special;
+--> ALTER DATABASE tutorial SET SEARCH_PATH = education;
+
+--> DROP TABLE t;
+--> DROP SCHEMA special (CASCADE);
+
+--> \c tutorial
+--> \conninfo
+--> DROP DATABASE test;
+
+###################################################################################################################################
+
+--> DROP DATABASE IF EXISTS newtest;
+--> CREATE DATABASE newtest TEMPLATE = demo;
+
+--> SELECT datname FROM pg_database;
+--> \set ECHO_HIDDEN on
+--> \c newtest
+--> \conninfo
+
+--> SELECT nspname FROM pg_namespace;
+--> CREATE SCHEMA dmitriy;
+--> CREATE SCHEMA app;
+
+--> CREATE TABLE dmitriy.t1(i INT);
+--> CREATE TABLE app.t2(i INT);
+
+--> ALTER TABLE app.t1 RENAME TO t3;
+--> ALTER TABLE app.t3 SET SCHEMA dmitriy;
+
+--> ALTER DATABASE newtest SET SEARCH_PATH dmitriy, app, bookings, public;
+
+--> \c postgres
+--> \c newtest
+--> \conninfo
+--> SHOW SEARCH_PATH
+--> SELECT current_schema;
+--> SELECT current_schemas(true);
+
+
+--> \dn+
+--> \dt+ dmitriy.*
+--> \dt+ app.*
+
+--> DROP TABLE app.t2;
+--> DROP SCHEMA app;
+--> DROP SCHEMA dmitriy CASCADE;
+--> DROP SCHEMA bookings CASCADE;
+--> \c postgres
+--> DROP DATABASE newtest;
+
