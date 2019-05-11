@@ -1,23 +1,15 @@
-\! sudo mkdir /data/exttbspaces/bookshop
-\! sudo chown postgres.postgres /data/exttbspaces/bookshop
-\! sudo chmod 700 /data/exttbspaces/bookshop
+\! sudo mkdir /data/exttbspaces/bsstore
+\! sudo chown postgres.postgres /data/exttbspaces/bsstore
+\! sudo chmod 700 /data/exttbspaces/bssrore
 
-CREATE TABLESPACE bookshop LOCATION '/data/exttbspaces/bookshop';
-CREATE DATABASE bookshop TABLESPACE bookshop;
+CREATE TABLESPACE bsstore LOCATION '/data/exttbspaces/bsstore';
+CREATE DATABASE bsstore TABLESPACE bsstore;
 
-\c bookshop
+\c bsstore
 
-CREATE SCHEMA bookshop AUTHORIZATION dmitriy;
-CREATE SCHEMA xstorage;
+CREATE SCHEMA market AUTHORIZATION dmitriy;
+CREATE SCHEMA xstore;
 
-SET SEARCH_PATH TO bookshop;
+SET SEARCH_PATH TO market;
 
-ALTER DATABASE bookshop SET SEARCH_PATH TO bookshop, xstorage;
-
-CREATE TABLE inittbl (id SERIAL, name TEXT);
-
-INSERT INTO inittbl (name) VALUES ('Dmitriy Redkin');
-
-\! touch .psqlrc
-\set name 'SELECT name FROM dmitriy WHERE id = 1';
-name:
+ALTER DATABASE bsstore SET SEARCH_PATH TO market, xstore;

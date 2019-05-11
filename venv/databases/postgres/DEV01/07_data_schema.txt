@@ -1,0 +1,115 @@
+\! mkdir /data/exttbspaces/bstore
+\! chown postgres.postgres /data/exttbspaces/bstore
+\! chmod 700 /data/exttbspaces/bstore
+
+CREATE TABLESPACE bsstore LOCATION '/data/exttbspaces/bstore';
+CREATE DATABASE bsstore TABLESPACE bsstore;
+
+\c bsstore
+
+CREATE TABLE people (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    employee BOOLEAN NOT NULL,
+    CONSTRAINT name_not_empty
+        CHECK(trim(name) <> '')
+);
+
+ALTER TABLE people ALTER COLUMN employee SET DEFAULT TRUE;
+
+INSERT INTO people (name) VALUES ('Иванов'), ('Петров');
+
+INSERT INTO people (name, employee) SELECT 'Сидоров', false FROM generate_series(1, 1000000) AS s(id);
+
+\timing on
+
+SELECT * FROM people WHERE name = 'Иванов'; -- 66.117
+
+EXPLAIN (COSTS OFF) SELECT * FROM people WHERE name = 'Иванов';
+
+SELECT * FROM people WHERE id = 1; --0.712
+
+EXPLAIN SELECT * FROM people WHERE id = 1;
+
+CREATE INDEX ON people (name);
+
+ANALYZE people;
+
+SELECT * FROM people WHERE name = 'Иванов'; -- 1.076
+
+EXPLAIN ELECT * FROM people WHERE name = 'Иванов';
+
+EXPLAIN SELECT * FROM people WHERE name = 'Сидоров';
+
+DROP INDEX people_name_idx;
+
+CREATE VIEW employees AS SELECT id, name FROM people WHERE employee;
+
+SELECT * FROM employees;
+
+UPDATE employees SET name = initcap(name);
+
+EXPLAIN ANALYZE SELECT * FROM employees WHERE name = 'Иванов';
+
+#########################################################################
+
+\c bsstore
+
+CREATE SCHEMA market AUTHORIZATION dmitriy;
+CREATE SCHEMA xstore;
+
+SET SEARCH_PATH TO market;
+SHOW SEARCH_PATH;
+
+ALTER DATABASE bsstore SET SEARCH_PATH = market, xstore;
+SELECT CURRENT_SCHEMAS(true);
+
+CREATE TABLE authors (
+    author_id SERIAL PRIMARY KEY,
+    last_name TEXT,
+    first_name TEXT,
+    middle_name TEXT
+);
+
+INSERT INTO authors(last_name, first_name, middle_name) VALUES ('Пушкин', 'Александр', 'Сергеевич');
+INSERT INTO authors(last_name, first_name, middle_name) VALUES ('Тургенев', 'Иван', 'Сергеевич');
+INSERT INTO authors(last_name, first_name, middle_name) VALUES ('Стругацкий', 'Борис', 'Натанович');
+INSERT INTO authors(last_name, first_name, middle_name) VALUES ('Стругацкий', 'Аркадий', 'Натанович');
+INSERT INTO authors(last_name, first_name, middle_name) VALUES ('Толстой', 'Лев', 'Николаевич');
+INSERT INTO authors(last_name, first_name) VALUES ('Свифт', 'Джонатан');
+
+CREATE TABLE books (
+    book_id SERIAL PRIMARY KEY;
+    title TEXT
+);
+
+INSERT INTO books(title) VALUES ('Сказка о царе Салтане');
+INSERT INTO books(title) VALUES ('Муму');
+INSERT INTO books(title) VALUES ('Трудно быть богом');
+INSERT INTO books(title) VALUES ('Война и мир');
+INSERT INTO books(title) VALUES ('Путешествия в некоторые удаленные страны мира в четырех частях: сочинение Лемюэля Гулливера, сначала хирурга, а затем капитана нескольких кораблей');
+INSERT INTO books(title) VALUES ('Хрестоматия');
+
+CREATE TABLE authorship (
+    book_id INT REFERENCES books,
+    author_id INT REFERENCES authors,
+    seq_num INT,
+    PRIMARY KEY (book_id, author_id)
+);
+
+INSERT INTO authorship(book_id, author_id, seq_num) VALUES(1, 1, 1);
+INSERT INTO authorship(book_id, author_id, seq_num) VALUES(2, 2, 1);
+INSERT INTO authorship(book_id, author_id, seq_num) VALUES(3, 3, 2);
+INSERT INTO authorship(book_id, author_id, seq_num) VALUES(3, 4, 1);
+INSERT INTO authorship(book_id, author_id, seq_num) VALUES(4, 5, 1);
+INSERT INTO authorship(book_id, author_id, seq_num) VALUES(5, 6, 1);
+INSERT INTO authorship(book_id, author_id, seq_num) VALUES(6, 1, 1);
+INSERT INTO authorship(book_id, author_id, seq_num) VALUES(6, 5, 2);
+INSERT INTO authorship(book_id, author_id, seq_num) VALUES(6, 2, 3);
+
+CREATE TABLE operations(
+    operation_id SERIAL PRIMARY KEY,
+    book_id INT NOT NULL REFERENCES books,
+    qty_change INT,
+    date_created DATE DEFAULT current_date
+);

@@ -62,7 +62,7 @@ pg_temp -- схема для временных таблиц
 --> ALTER TABLE app.t1 RENAME TO t3;
 --> ALTER TABLE app.t3 SET SCHEMA dmitriy;
 
---> ALTER DATABASE newtest SET SEARCH_PATH dmitriy, app, bookings, public;
+--> ALTER DATABASE newtest SET SEARCH_PATH = dmitriy, app, bookings, public;
 
 --> \c postgres
 --> \c newtest
