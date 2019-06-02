@@ -1,0 +1,25 @@
+# psql -d база -U юзер -h узел -p порт
+
+=> \c[onnect] база юзер узел порт
+=> \conninfo
+
+# psql --help
+
+=> \?				# список команд psql
+=> \? variables			# справка по переменным psql
+=> \? options			# справка по параметрам командной строки psql
+=> \h				# список команд SQL
+=> \h команда			# синтаксис команды SQL
+
+=> SELECT * FROM pg_tables;
+
+=> \pset			# форматирование вывода
+=> \! command			# команды операционной системы
+
+=> \setenv TEST Hello
+=> \! echo $TEST		# переменные окружения ОС
+
+=> \o main_log			# вывод в файд
+=> SELECT * FROM pg_tables;
+=> \! cat main_log
+=> \o				# возврат вывода на экран

@@ -1,0 +1,40 @@
+\eccho :AUTOCOMMIT
+
+-- if  'off'
+\set AUTOCOMMIT ON
+
+-- BEGIN
+    --UPDATE authors SET first_name 'Алексей' WHERE last_name = 'Толстой';
+-- COMMIT;
+
+-- BEGIN;
+    --UPDATE authors SET first_name 'Алексей' WHERE last_name = 'Толстой';
+    -- SAVEPOINT sp1
+        --UPDATE authors SET first_name 'Александр' WHERE last_name = 'Толстой';
+    -- ROLLBACK TO sp1
+        --UPDATE authors SET first_name 'Лев' WHERE last_name = 'Толстой';
+-- COMMIT;
+
+PREPARE s(int, text) AS SELECT * FROM authors WHERE author_id = $1 AND first_name = $2;
+
+EXECUTE s(5, 'Лев');
+
+SELECT * FROM pg_prepared_statements;
+
+BEGIN;
+    DECLARE curs CURSOR FOR SELECT * FROM authors;
+        FETCH curs;
+        FETCH curs;
+    CLOSE curs;
+COMMIT;
+
+BEGIN;
+    CREATE TABLE people (
+    persone_id SERIAL PRIMARY KEY,
+    persone_name TEXT NOT NULL,
+    is_employee BOOLEAN NOT NULL,
+    CONSTRAINT persone_name_not_empty
+        CHECK(trim(name) <> '')
+    );
+    INSERT INTO people (persone_name, is_employee) SELECT 'Иван Сидоров', true FROM generate_series(1, 1000000) AS s(id);
+    DECLARE curs CURSOR FOR SELECT * FROM people;

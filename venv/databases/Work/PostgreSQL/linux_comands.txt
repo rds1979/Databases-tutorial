@@ -1,0 +1,62 @@
+# memory testing: 
+free, ipcs
+
+# disk testing:
+iostat, lsblk, fdisk, df, du, fsck.ext4, mkfs, blkid, mount, fuser, vmstat(sysstat), swapon, edquota, quotacheck -avug, repquota
+mkfs -t ext4 /dev/sdc2
+mount -t filesystem /dev/hdc2 /mnt/folder1
+vi /etc/fstab
+vi /etc/mtab
+fuser -muv /data # 3793
+ps -ef | grep 3793
+
+# files:
+lsof, head, tail, less, more, tree, ls, touch, cat, cp, mv, rm, cd, pwd, locate, find, diff, path, which, whereis, type
+
+# users
+whoami, adduser, useradd, usermod, chmod, chown, chgrp, umask, groupadd, id, setuid, setgid, umask
+vi /etc/passwd
+vi /etc/groups
+vi /etc/shadow
+ls -all /etc/skel
+
+# kernel:
+sysctl, proc, systemctl, uname -a
+
+# processes
+
+top, ps, pstree(psmisc), jobs, fg, bg, kill
+
+# network
+vi /etc/sysconfig/network-scripts/eth0 -interface settings
+vi /etc/sysconfig/network - route settings
+vi /etc/hosts - hostname settings
+vi /etc/resolv.conf - resolve hostnames settings
+vi /etc/nsswitch - order browse files and servers
+vi /etc/services -protocols settings
+
+ifconfig -a
+ifconfig eth0 192.168.1.5/24 UP
+ifconfig eth0 up/down
+
+route -n
+route add -net 0/0 gw 192.168.1.1
+
+netstat -nr, netstat -l
+bind utils: dig, whois, host, nslookup, ping, traceroute, tracepath, telnet, hostname
+
+nmcli
+
+# security
+SELinux, Firewalld, sshd, ca-certificates
+
+sestatus
+
+# hardware
+lspci, lsusb, findmnt, mount, mknod, mkfifo
+
+
+
+
+
+

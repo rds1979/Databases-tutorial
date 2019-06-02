@@ -1,0 +1,12 @@
+# pg_dump tutorial > ~/data/2019-05-29-tutorial.sql
+# pg_dump -d tutorial -t flights /data/flights.sql
+
+# createdb tutorial
+# psql tutorial < /data/dump.sql -1
+
+=> COPY
+=> \copy
+
+utilite barmen
+
+

@@ -1,0 +1,7 @@
+# mkdir /data/postgres
+# chown postgres.postgres /data/postgres
+# chmod 700 /data/postgres
+# initdb -D /data/postgres
+
+
+
