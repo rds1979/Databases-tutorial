@@ -1,0 +1,21 @@
+# pg_dump tutorial > ~/data/2019-05-29-dump.sql
+# pg_dump -d tutorial -t table1 /data/table1.sql
+
+# psql -d postgres -c "DROP DATABASE tutorial;"
+# createdb -T template0 tutorial
+# psql tutorial < /data/dump.sql --single-transaction
+
+# pg_dump (-h host1) demo | psql (-h host2) demo
+
+# pg_dump -Fc demo > ~/data/2019-06-02-demo
+# pg_restore -d demo ~/data/2019-06-02-demo
+
+# pg_dumpall | gzip > ~/data/2019-06-02-all.gz
+# cat ~/data/2019-06-02-all.gz | gunzip | psql postgres
+
+=> COPY
+=> \copy
+
+
+-- AFTER RESTORE COUNT STATISTIC
+ANALYZE -- for every restored database
