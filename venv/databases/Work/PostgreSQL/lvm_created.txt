@@ -1,0 +1,53 @@
+
+sudo lsblk
+
+sudo fdisk -l
+
+sudo fdisk /dev/sdb
+
+# No format created LVM disks
+
+sudo pvcreate /dev/sdb1
+
+sudo file -s /dev/sdb1
+
+sudo pvscan, lvmdiskscan, pvck /dev/sda3, pvdisplay, pvs
+
+sudo vgcreate volgroup1 /dev/sda3
+
+sudo vgdisplay, vgscan
+
+sudo vgactivate -ay
+
+sudo lvcreate -L 22G -n data volgroup1
+
+sudo lvscan
+
+sudo mkdir /data
+
+sudo mkfs.ext4 /dev/volgroup1/data
+
+sudo mount /dev/volgroup1/data /data
+
+sudo vi /etc/fstab
+
+#UUID=f9aea1c1-8524-4b7b-9a2e-fd37d0a4b90f	/data	ext4	defaults	1	2
+
+sudo vgextend volgroup1 /dev/sdx1
+
+sudo lvscan
+
+sudo lvextend -L +20,6G /dev/volgroup1/data
+
+sudo resize2fs /dev/volgroup1/data
+
+
+
+
+
+
+
+
+
+
+

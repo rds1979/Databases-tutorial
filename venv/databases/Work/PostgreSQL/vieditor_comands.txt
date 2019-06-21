@@ -1,0 +1,18 @@
+i 	- edit mode
+ESC 	- command mode
+w	- write
+q	- quit
+wq	- save and quit
+x!	- save and quit
+q!	- quit without save
+yy	- copy
+c	- cut
+p	- paste
+dd	- delete
+o 	- insert sring below
+/word   - find word
+
+
+
+
+

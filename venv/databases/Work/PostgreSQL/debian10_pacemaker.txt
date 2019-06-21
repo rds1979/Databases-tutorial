@@ -1,0 +1,214 @@
+
+-----------NODE1
+
+############################## AFTER INSTALL SETTINGS #############################################################
+
+# apt-get update
+# apt-get upgrade
+# apt-get install net-tools sudo mlocate fdisk
+
+############################## USERS AND PROFILES SETTINGS #########################################################
+
+# su -
+# usermod -aG sudo dba
+
+############################## NETWORK AND DOMAIN NAMES SETTINGS ###################################################
+
+# sudo vi /etc/network/interfaces
+
+source /etc/network/interfaces.d/*
+auto lo enp0s3
+iface lo inet loopback
+
+allow-hotplug enp0s3
+iface enp0s3 inet static
+	address 192.168.1.101	
+	netmask 255.255.255.0
+	network 192.168.1.0
+	gateway 192.168.1.1
+
+# hostname
+pnode1
+
+# cat /etc/hostname 
+pnode1
+
+# sudo vi /etc/resolv.conf 
+
+domain home.me
+search home.me
+nameserver 8.8.8.8
+nameserver 213.177.97.201
+
+# sudo vi /etc/hosts
+
+192.168.1.101   pnode1 pnode1.home.me
+192.168.1.102   pnode2 pnode2.home.me
+192.168.1.103   pnode3 pnode3.home.me
+
+# ping -c 3 pnode1
+
+PING pnode1 (192.168.1.101) 56(84) bytes of data.
+64 bytes from pnode1 (192.168.1.101): icmp_seq=1 ttl=64 time=1.03 ms
+64 bytes from pnode1 (192.168.1.101): icmp_seq=2 ttl=64 time=1.14 ms
+64 bytes from pnode1 (192.168.1.101): icmp_seq=3 ttl=64 time=0.810 ms
+
+################################ LVM AND FILE SYSTEMS SETTINGS ######################################################
+
+# sudo lsblk, fdisk -l
+# sudo apt install lvm2
+# sudo systemctl list-units lvm2*
+
+# sudo fdisk /dev/sda
+# sudo fdisk /dev/sdb
+
+# sudo pvcreate /dev/sda4
+# sudo pvcreate /dev/sdb1
+
+# sudo vgcreate pg_volgroup /dev/sda4 /dev/sdb1
+# sudo vgdisplay, vgscan
+
+# sudo lvcreate -L 77,9G -n pg_data pg_volgroup
+# sudo lvscan, lsblk
+
+# sudo mkdir /pgdata
+
+# sudo mkfs.ext4 /dev/pg_volgroup/pg_data
+# sudo mount /dev/pg_volgroup/pg_data /pgdata
+
+#sudo blkid /dev/pg_volgroup/pg_data
+/dev/pg_volgroup/pg_data: UUID="ef5a9a2b-5ccb-4ad1-adfe-99f5ac7a591d" TYPE="ext4"
+
+# sudo vi /etc/fstab
+UUID=ef5a9a2b-5ccb-4ad1-adfe-99f5ac7a591d /pgdata        ext4    defaults         1       2
+
+############################## CLONE NODE1 TO NODE2, NODE3 ############################################################
+
+change network settings in /etc/network/interfaces, /etc/hostname
+
+############################## CLUSTER SOFTWARE INSTALL  ##############################################################
+
+ON NODE1, NODE2, NODE3:
+
+# sudo apt-get install pacemaker pcs corosync
+
+############################## CONFIGURE SSH   #######################################################################
+
+ON HOST COMPUTER
+
+# sudo -u dba -i
+
+# ssh-keygen -t rsa -q -N '' -f ~/.ssh/id_rsa
+# cp ~/.ssh/id_rsa.pub ~/.ssh/authorized_keys
+# chmod 600 ~/.ssh/authorized_keys
+
+# scp -r ~/.ssh pnode1:
+# ssh pnode1 -- uname -n
+----
+# scp -r ~/.ssh pnode2:
+# ssh pnode2 -- uname -n
+----
+# scp -r ~/.ssh pnode3:
+# ssh pnode3 -- uname -n
+
+############################## MANAGING CLUSTER   #######################################################################
+
+ON NODE1, NODE2, NODE3
+
+# sudo grep hacluster /etc/passwd
+# sudo passwd hacluster
+
+# sudo systemctl start pcsd
+# sudo systemctl enable pcsd
+
+# sudo systemctl start pacemaker
+# sudo systemctl enable pacemaker
+
+# sudo systemctl start corosync
+# sudo systemctl enable corosync
+
+-----------------------------------------
+
+ON NODE1
+
+# sudo pcs host auth pnode1 pnode2 pnode3
+# sudo pcs cluster setup pg_cluster pnode1 addr=192.168.1.101 pnode2 addr=192.168.1.102 pnode3 addr=192.168.1.103
+
+# sudo pcs cluster start --all
+# sudo pcs cluster enable --all
+
+# sudo pcs property set stonith-enabled=false
+
+# sudo pcs resource create cluster_ip ocf:heartbeat:IPaddr2 ip=192.168.1.100 cidr_netmask=24 nic=enp0s3 op monitor interval=30s
+# sudo pcs resource enable cluster_ip
+
+# sudo crm_verify -L -V
+
+# sudo pcs status
+
+Cluster name: pg_cluster
+Stack: corosync
+Current DC: pnode1 (version 2.0.1-9e909a5bdd) - partition with quorum
+Last updated: Mon Jun 17 00:20:30 2019
+Last change: Mon Jun 17 00:16:58 2019 by root via cibadmin on pnode1
+
+3 nodes configured
+1 resource configured
+
+Online: [ pnode1 pnode2 pnode3 ]
+
+Full list of resources:
+
+ cluster_ip	(ocf::heartbeat:IPaddr2):	Started pnode1
+
+Daemon Status:
+  corosync: active/enabled
+  pacemaker: active/enabled
+  pcsd: active/enabled
+
+############################## INSTALL POSTGRESQL #######################################################################
+
+---- ON NODE1, NODE2, NODE3
+
+# wget https://ftp.postgresql.org/pub/source/v12beta1/postgresql-12beta1.tar.gz
+# gunzip postgresql-12beta1.tar.gz
+# tar -xvf postgresql-12beta1.tar
+
+# sudo apt show gcc
+# which make
+# sudo apt install tar gzip make gcc zlib1g zlib1g-dev libreadline7 libreadline-dev
+
+# ./configure 
+# sudo make	
+# sudo make install
+
+# sudo vi /etc/environment
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/pgsql/bin"
+PGDATA="/pgdata/12/data"
+
+# sudo mkdir /pgdata/12/data
+# sudo chown -R dba.dba /pgdata
+# sudo chmod -R 700 /pgdata
+
+# initdb -k
+
+# mkdir /pgdata/pglog
+# chmod 700 /pgdata/pglog
+# cd $PGDATA
+# ln -s /pgdata/pglog $PGDATA/pglog
+
+# pg_ctl -l /pgdata/pglog/postgresql.log start
+# psql -c "CREATE ROLE dba WITH SUPERUSER ENCRYPTED PASSWORD '*******';"
+# psql -U dba -d postgres
+
+
+
+
+
+
+
+
+
+
+
+

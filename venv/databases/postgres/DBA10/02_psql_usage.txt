@@ -1,7 +1,15 @@
-# psql -d база -U юзер -h узел -p порт
+
+# sudo vi  /pgdata/postgres/data/pg_hba.conf
+
+host 	demo		dba		192.168.1.0/24		md5
+
+# systemctl restart postgresql
+# psql -h altserver2 -d demo -U dba
 
 => \c[onnect] база юзер узел порт
 => \conninfo
+
+You are connected to database "demo" as user "dba" on host "altserver2" (address "192.168.1.9") at port "5432"
 
 # psql --help
 
@@ -11,10 +19,24 @@
 => \h				# список команд SQL
 => \h команда			# синтаксис команды SQL
 
-=> SELECT * FROM pg_tables;
+~/.psqlrc
+~/.psql_history
 
-=> \pset			# форматирование вывода
+=> \t \a
+=> \pset fieldsep ' '
+
+=> SELECT schemaname, tablename, tableowner FROM pg_tables LIMIT 5;
+=> SELECT * FROM pg_tables\gx
+
+=> \t \a
+
+=> \x
+=> SELECT * FROM pg_tables WHERE tablename = 'pg_class';
+=> \x
+
+
 => \! command			# команды операционной системы
+=> \! uptime
 
 => \setenv TEST Hello
 => \! echo $TEST		# переменные окружения ОС
@@ -23,3 +45,22 @@
 => SELECT * FROM pg_tables;
 => \! cat main_log
 => \o				# возврат вывода на экран
+
+=> \i my_script
+
+# psql < filename
+# psql -f filename
+
+\set TEST Hi!
+\echo :TEST
+
+=> SELECT now() AS curr_time\gset
+=> \echo :curr_time
+
+=> \set top5 'SELECT tablename, pg_total_relation_size(schemaname||''.''||tablename) AS bytes FROM pg_tables ORDER BY bytes DESC LIMIT 5;'
+=> \ :top5
+
+=> echo "\setenv PAGER 'less -XS'" >> ~/.psqlrc
+=> echo "\timing on" >> ~/.psqlrc
+
+

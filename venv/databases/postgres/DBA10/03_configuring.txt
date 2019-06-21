@@ -1,0 +1,36 @@
+# psql -d test
+
+-- найти конфигурационный файл:
+
+1) => SHOW config_file;
+2) # locate postgresql.conf
+
+-- перечитать параметры из файла:
+1) # pg_ctl reload, systemctl reload postgresql
+2) # kill -HUP
+3) => SELECT pg_reload_conf();
+
+postgresql.auto.conf считывается после postgresql.conf
+
+=> ALTER SYSTEM SET par TO value;
+=> ALTER SYSTEM RESET par;
+=> ALTER SYSTEM RESET ALL;
+
+
+=> SELECT setting FROM pg_settings WHERE name = 'config_file';
+=> \! sudo sed -n '35,46p' /pgdata/postgres/data/postgresql.conf -- показать строки 35 - 46
+=> \x
+=> SELECT * FROM pg_file_settings WHERE sourcefile LIKE '%postgresql.conf'; -- незакомментированные опции файла конфигурации
+=> SELECT * FROM pg_settings WHERE name = 'work_mem';\gx -- применённые настройки
+
+=> ALTER SYSTEM SET 'work_mem' TO '16MB';
+=> \! sudo grep work_mem /pgdata/postgres/data/postgresql.auto.conf
+=> SELECT pg_reload_conf();
+=> SELECT * FROM pg_settings WHERE name = 'work_mem'\gx
+=> SHOW work_mem;
+
+=> ALTER SYSTEM RESET work_mem;
+\! sudo cat /pgdata/postgres/data/postgresql.auto.conf
+=> SELECT pg_reload_conf();
+
+=> SELECT * FROM pg_settings WHERE context = 'internal'\gx ||postmaster, sighup, superuser, user

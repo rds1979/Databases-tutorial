@@ -1,0 +1,169 @@
+
+############################### USERS AND PROFILES SETTINGS #########################################################
+
+# su -
+# usermod -aG wheel dmitriy
+# chmod 600 /etc/sudoers
+
+WHEEL_USERS ALL=(ALL) ALL
+
+# chmod 400 /etc/sudoers
+# exit
+
+# sudo useradd dba
+# sudo passwd dba
+# sudo usermod -aG wheel dba
+
+# grep postgres /etc/passwd
+postgres:x:46:46:PostgreSQL Server:/var/lib/pgsql:/dev/null
+
+# sudo usermod -d /pgdata/postgres postgres
+postgres:x:46:46:PostgreSQL Server:/pgdata/postgres:/dev/null
+
+# vi .bash_profile
+PGDATA=/pgdata/postgres/data
+export PGDATA
+
+# su -
+# echo export PGDATA=/pgdata/postgres/data >> /root/.bash_profile
+
+
+################################ NETWORK AND DOMAIN NAMES SETTINGS #######################################################
+
+# hostname
+# sudo vi /etc/sysconfig/network
+
+HOSTNAME=altserver2.home.me
+
+# su -
+# lspci -v
+# vi /etc/net/ifaces/enp0s3/options
+
+BOOTPROTO=static
+
+# echo 192.168.1.9/24 > /etc/net/ifaces/enp0s3/ipv4address
+# echo default via 192.168.1.1 > /etc/net/ifaces/enp0s3/ipv4route
+
+# vi /etc/net/ifaces/enp0s3/resolv.conf
+domain home.me
+search home.me
+nameserver 8.8.8.8
+nameserver 213.177.97.201
+
+# vi /etc/hosts
+
+127.0.0.1       localhost.localdomain localhost altserver2
+192.168.1.8	altserver1.home.me altserver1
+192.168.1.9     altserver2.home.me
+
+################################ SOFTWARE AND REPOSITORY SETTINGS #########################################################
+
+# sudo vi /etc/apt/sources.list
+
+rpm http://ftp.altlinux.org/pub/distributions/ALTLinux p8/branch/i586 classic
+rpm http://ftp.altlinux.org/pub/distributions/ALTLinux p8/branch/noarch classic
+
+
+################################ LVM AND FILE SYSTEMS SETTINGS ##############################################################
+
+# sudo apt-get install mlocate, fdisk 
+# sudo lsblk, fdisk -l
+
+# sudo fdisk /dev/sda
+# sudo fdisk /dev/sdb
+
+# sudo pvcreate /dev/sda3
+# sudo pvcreate /dev/sdb1
+
+# sudo pvscan, pvdisplay, pvs
+# sudo file -s /dev/sdb1
+
+# sudo vgcreate pg_volgroup /dev/sda3
+# sudo vgdisplay, vgscan
+
+# sudo lvcreate -L 26,55G -n pg_data pg_volgroup
+# sudo lvscan, lsblk
+
+
+
+# sudo mkdir /pgdata
+
+# sudo mkfs.ext4 /dev/pg_volgroup/pg_data
+# sudo mount /dev/pg_volgroup/pg_data /pgdata
+
+# sudo blkid /dev/pg_volgroup/pg_data
+/dev/pg_volgroup/pg_data: UUID="2f746b78-ec2c-4d00-8f38-fb79754a0490" TYPE="ext4"
+
+# sudo vi /etc/fstab
+UUID=2f746b78-ec2c-4d00-8f38-fb79754a0490	/pgdata	ext4	defaults	1	2
+
+
+###################################### POSTGRESQL INSTALL AND START #####################################################
+
+
+# sudo apt-get install postgresql11 postgresql11-server postgresql11-contrib
+
+# sudo mkdir /pgdata/postgres
+# sudo mkdir /pgdata/postgres/data
+# sudo chown -R postgres.postgres /pgdata
+# sudo chmod 700 /pgdata
+
+
+# sudo vi /lib/systemd/system/postgresql.service
+Environment=PGDATA=/pgdata/postgres/data
+
+# sudo vi /etc/init.d/postgresql
+
+PGDIR=/pgdata/postgres
+PGDATA=/pgdata/postgres/data
+PIDFILE="$PGDATA/postmaster.pid"
+PGLOG=/pgdata/postgres/data/postgresql.log
+
+# /etc/init.d/postgresql initdb -k
+
+# sudo systemctl start postgresql
+# sudo systemctl enable postgresql
+
+# psql -U postgres
+
+=> CREATE USER dba WITH SUPERUSER;
+=> ALTER USER dba WITH ENCRYPTED PASSWORD '*****';
+=> SELECT setting FROM pg_settings WHERE name = 'config_file'; 
+=> \q
+
+########################################### EXTENDED LVM ########################################################################
+
+# sudo vgextend pg_volgroup /dev/sdb1
+# sudo lvextend -L +20G /dev/pg_volgroup/pg_data
+# sudo resize2fs /dev/pg_volgroup/pg_data
+
+########################################### RESTORE DEMO DATABASE INTO POSTGRESQL ################################################
+
+# scp postgre_load/demo-big-20170815.sql dba@altserver2:/home/dba/demo-big-20170815.sql
+# ssh dba@altserver2
+# createdb demo
+# createdb test
+# psql < demo-big-20170815.sql -d test
+
+# psql -d demo
+=> ALTER DATABASE demo SET SEARCH_PATH TO demo, public;
+
+########################################### CONFIGURING POSTGRESQL AFTER INSTALL ################################################
+
+=> SHOW config_file;
+
+=> ALTER SYSTEM SET 'work_mem' TO '16MB';
+=> \! sudo grep work_mem /pgdata/postgres/data/postgresql.auto.conf
+=> SELECT pg_reload_conf();
+=> SELECT * FROM pg_settings WHERE name = 'work_mem'\gx
+
+# sudo vi /pgdata/postgres/data/postgresql.conf
+listen_addresses = '*' 
+# sudo systemctl reload postgresql
+=> SHOW listen_addresses;
+
+
+
+
+
+

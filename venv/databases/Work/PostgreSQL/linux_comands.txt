@@ -2,7 +2,7 @@
 free, ipcs
 
 # disk testing:
-iostat, lsblk, fdisk, df, du, fsck.ext4, mkfs, blkid, mount, fuser, vmstat(sysstat), swapon, edquota, quotacheck -avug, repquota
+iostat, lsblk, fdisk, file -s, pvscan, df, du, fsck.ext4, mkfs, blkid, mount, fuser, vmstat(sysstat), swapon, edquota, quotacheck -avug, repquota
 mkfs -t ext4 /dev/sdc2
 mount -t filesystem /dev/hdc2 /mnt/folder1
 vi /etc/fstab
@@ -11,7 +11,7 @@ fuser -muv /data # 3793
 ps -ef | grep 3793
 
 # files:
-lsof, head, tail, less, more, tree, ls, touch, cat, cp, mv, rm, cd, pwd, locate, find, diff, path, which, whereis, type
+lsof, head, tail, less, more, tree, ls, touch, cat, cp, mv, rm, cd, pwd, locate, find, diff, path, which, whereis, type, file
 
 # users
 whoami, adduser, useradd, usermod, chmod, chown, chgrp, umask, groupadd, id, setuid, setgid, umask
@@ -54,6 +54,11 @@ sestatus
 
 # hardware
 lspci, lsusb, findmnt, mount, mknod, mkfifo
+
+#text
+
+grep dmitriy /etc/passwd
+sudo grep -r "/var/lib/pgsql/data" /data/postgres /usr
 
 
 

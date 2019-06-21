@@ -1,1 +1,71 @@
-# wget https://ftp.postgresql.org/pub/source/v12beta1/postgresql-12beta1.tar.gz
+wget https://ftp.postgresql.org/pub/source/v12beta1/postgresql-12beta1.tar.gz
+
+gunzip postgresql-12beta1.tar.gz
+
+tar -xvf postgresql-12beta1.tar
+
+sudo apt show gcc
+
+which make
+
+sudo apt install tar gzip make gcc zlib1g zlib1g-dev libreadline7 libreadline-dev
+
+chmod +x ./configure 
+
+./configure 		# --prefix --enable-debug
+
+			# make distclean
+
+sudo make			# sudo make world
+
+sudo make install		# sudo make install-world
+
+# PostgreSQL installation complete.
+
+# Create LVM
+
+lsblk
+
+
+# Create $PGDATA
+
+sudo add postgres
+
+sudo usermod -d /data/postgres postgres
+
+sudo mkdir /data/postgres
+
+sudo chown postgres.postgres /data/postgres
+
+sudo chmod 700 /data/postgres
+
+# Run P0stgreSQL
+
+su - postgres
+
+whoami
+
+touch .profile
+
+export PATH=/usr/local/pgsql/bin:$PATH
+export PGDATA=/data/postgres
+
+initdb -k
+
+sudo mkdir /var/log/postgres
+
+sudo chown postgres.postgres /var/log/postgres
+
+pg_ctl -D /data/postgres/ -l /var/log/postgres/postgres.log start
+
+psql
+
+=> \password
+
+=> CREATE USER dmitriy WITH ENCRYPTED PASSWORD '*******';
+
+=> ALTER USER dmitriy WITH SUPERUSER;
+
+=> \q
+
+sudo tail -30 /var/log/postgres/postgres.log
