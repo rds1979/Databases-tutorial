@@ -3,6 +3,7 @@ ESC 	- command mode
 w	- write
 q	- quit
 wq	- save and quit
+wq!	- save, rewrite and quit
 x!	- save and quit
 q!	- quit without save
 yy	- copy
@@ -10,7 +11,12 @@ c	- cut
 p	- paste
 dd	- delete
 o 	- insert sring below
+a	- insert after string
+
+
 /word   - find word
+:set number
+:set mouse
 
 
 

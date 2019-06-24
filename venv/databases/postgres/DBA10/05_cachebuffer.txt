@@ -1,0 +1,10 @@
+sinchronus_commit
+
+=> SELECT pg_current_wal_lsn() AS pos1 \gset
+=> CREATE TABLE t (n INT);
+=> INSERT INTO t SELECT gen.id FROM generate_series(1, 1000) AS gen(id);
+=> SELECT * FROM t LIMIT 10 OFFSET 10;
+=> SELECT pg_current_wal_lsn() AS pos1 \gset
+=> SELECT:'pos2'::pg_lsn - :'pos1'::pg_lsn AS bytes;
+=> SELECT * FROM pg_ls_waldir() ORDER BY NAME;
+

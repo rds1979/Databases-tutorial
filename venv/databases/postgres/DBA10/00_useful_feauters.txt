@@ -1,0 +1,25 @@
+
+SELECT * FROM pg_user;
+CREATE ROLE user1 WITH LOGIN NOCREATEDB ENCRYPTED PASSWORD '******';
+ALTER ROLE user1 ENCRYPTED PASSWORD '*****';
+ALTER ROLE user1 NOSUPERUSER CREATEDB;
+\du
+
+SELECT datid, datname, pid, usesysid, usename FROM pg_stat_activity;
+\x
+SELECT * FROM pg_stat_activity WHERE usename::TEXT = 'tutorial'; -- pid = 1298
+$ ps -ef | grep tutorial pid = 1298
+
+ALTER ROLE tutorial WITH NOLOGIN;
+
+SELECT pg_terminate_backend(1298) FROM pg_stat_activity WHERE datname::TEXT = 'tutorial';
+$ kill -15 1298
+
+/*
+pg_cancel_backend и pg_terminate_backend передают сигналы (SIGINT и SIGTERM, соответственно) серверному процессу с заданным кодом PID.
+Код активного процесса можно получить из столбца pid представления pg_stat_activity или просмотрев на сервере процессы с именем postgres
+(используя ps в Unix или Диспетчер задач в Windows). Роль пользователя активного процесса можно узнать в столбце usename представления
+pg_stat_activity.
+*/
+
+

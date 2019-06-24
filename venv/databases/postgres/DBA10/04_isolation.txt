@@ -1,0 +1,16 @@
+
+CREATE TABLE mv (s TEXT);
+INSERT INTO mv VALUES ('First Version');
+SELECT *, xmin, xmax FROM mv;
+
+BEGIN;
+	SELECT txid_current();
+	UPDATE mv SET s = 'Second Version' WHERE s = 'First Version';
+	SELECT *, xmin, xmax FROM mv;
+COMMIT | ROLLBACK;
+
+BEGIN ISOLATION LEVEL REPEATABLE READ;
+	DELETE FROM mv;
+COMMIT | ROLLBACK;
+
+pageinspect extension -- исследование страниц данных на низком уровне
